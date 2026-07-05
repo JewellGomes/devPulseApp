@@ -100,5 +100,5 @@ DevPulse uses objective algorithmic models to drive its indicators:
 **Project Type:** Solo Developer
 **Developer:** Jewell Eudocia Gomes
 **Role:** Full-Stack Developer, AI Engineer, & UI/UX Designer
-**SkillValix Profile:** [Link to your SkillValix profile if you have one]
+**SkillValix Profile:** https://www.skillvalix.com/u/6a4611fce30a0191427733a7
 *Submitted for the OpenNova Hackathon — Build Ideas That Matter.*
