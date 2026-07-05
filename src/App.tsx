@@ -1302,7 +1302,7 @@ To launch this dashboard locally:
 
                   {/* Collapsible Telemetry Scientific Formulas Panel */}
                   <div className="col-span-12 mt-8">
-                    <div className="bg-slate-900/30 border border-slate-805/80 rounded-3xl p-5 backdrop-blur-md">
+                    <div className="bg-slate-900/30 border border-slate-800/80 rounded-3xl p-5 backdrop-blur-md">
                       <button
                         onClick={() => setShowTelemetryFormulas(!showTelemetryFormulas)}
                         className="w-full flex items-center justify-between text-left cursor-pointer group"
@@ -1620,7 +1620,7 @@ To launch this dashboard locally:
                         </div>
                       </div>
 
-                      <div className="mt-4 p-3 rounded-xl border border-slate-850 bg-slate-950/40">
+                      <div className="mt-4 p-3 rounded-xl border border-slate-800 bg-slate-950/40">
                         <span className="text-[9px] font-mono text-emerald-400 tracking-wider block mb-1">
                           DX DEVELOPER ADVOCATE INSTRUCTION:
                         </span>
@@ -1912,7 +1912,7 @@ To launch this dashboard locally:
                           <textarea
                             value={userEditedPitch || generatePitchText(result, pitchTone)}
                             onChange={(e) => setUserEditedPitch(e.target.value)}
-                            className="w-full min-h-[140px] bg-slate-950 text-xs font-mono text-slate-300 p-4 border border-slate-850 rounded-xl leading-relaxed outline-none focus:border-emerald-500 resize-y"
+                            className="w-full min-h-[140px] bg-slate-950 text-xs font-mono text-slate-300 p-4 border border-slate-800 rounded-xl leading-relaxed outline-none focus:border-emerald-500 resize-y"
                             placeholder="Drafting your launch post..."
                             id="pitch-draft-textarea"
                           />
@@ -2019,7 +2019,7 @@ To launch this dashboard locally:
                             </div>
                           </div>
 
-                          <p className="text-slate-200 whitespace-pre-wrap leading-normal font-mono text-[10px] bg-slate-950 p-3 rounded-lg border border-slate-850">
+                          <p className="text-slate-200 whitespace-pre-wrap leading-normal font-mono text-[10px] bg-slate-950 p-3 rounded-lg border border-slate-800">
                             {userEditedPitch || generatePitchText(result, pitchTone)}
                           </p>
                         </motion.div>

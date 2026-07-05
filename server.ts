@@ -625,10 +625,10 @@ app.post("/api/analyze", async (req, res) => {
 
     // programmatically scan onboarding
     const onboardingAuditor = {
-      score: rootFilesList.includes(".env.example") ? (rootFilesList.includes("Dockerfile") ? 15 : 45) : 75,
-      missingFiles: rootFilesList.includes(".env.example") ? (rootFilesList.includes("Dockerfile") ? [] : ["Dockerfile"]) : [".env.example", "Dockerfile"],
-      improvementTip: rootFilesList.includes(".env.example") ? "Provide container configs like Dockerfile to optimize local installations." : "Include a comprehensive .env.example with exact setup variables.",
-      hasEnvExample: rootFilesList.includes(".env.example"),
+      score: rootFilesList.includes(".env") ? (rootFilesList.includes("Dockerfile") ? 15 : 45) : 75,
+      missingFiles: rootFilesList.includes(".env") ? (rootFilesList.includes("Dockerfile") ? [] : ["Dockerfile"]) : [".env", "Dockerfile"],
+      improvementTip: rootFilesList.includes(".env") ? "Provide container configs like Dockerfile to optimize local installations." : "Include a comprehensive .env with exact setup variables.",
+      hasEnvExample: rootFilesList.includes(".env"),
       hasDocker: rootFilesList.includes("Dockerfile") || rootFilesList.includes("docker-compose.yml"),
       hasPrerequisites: readmeContent.toLowerCase().includes("prerequisite") || readmeContent.toLowerCase().includes("requirement")
     };
@@ -835,9 +835,9 @@ Detected Files: ${JSON.stringify(filesList || [])}
 Inferred Language/Framework: "${language || 'TypeScript/Node.js'}"
 
 Based on this information, construct three highly optimized, production-grade onboarding files:
-1. "envExample": A perfectly populated ".env.example" file with comments explaining each variable. Include common variables for the detected stack (e.g. PORT, GITHUB_TOKEN, DB credentials, API keys) and explain how to acquire or configure them.
+1. "envExample": A perfectly populated ".env" file with comments explaining each variable. Include common variables for the detected stack (e.g. PORT, GITHUB_TOKEN, DB credentials, API keys) and explain how to acquire or configure them.
 2. "dockerfile": An extremely clean, security-conscious, multi-stage "Dockerfile" for building and running the application. It should be optimized (e.g., using lightweight official images like alpine/slim, implementing multi-stage cache for packages, declaring WORKDIR, copying only relevant files, exposing ports, and running as a non-root user).
-3. "bootstrapScript": An automated, highly-polished bash setup script ("bootstrap.sh"). It should check if Docker and language runtimes (e.g. node, npm, python, pip) are installed, copy ".env.example" to ".env" if ".env" does not exist, run package installation, and print clear next steps for launching in development vs production. Make it beautiful using ansi color escapes.
+3. "bootstrapScript": An automated, highly-polished bash setup script ("bootstrap.sh"). It should check if Docker and language runtimes (e.g. node, npm, python, pip) are installed, copy ".env" to ".env" if ".env" does not exist, run package installation, and print clear next steps for launching in development vs production. Make it beautiful using ansi color escapes.
 
 Return the result in valid strict JSON matching the requested schema.
 `;
@@ -868,7 +868,7 @@ Return the result in valid strict JSON matching the requested schema.
     const fallback = {
       envExample: `# DevPulse Environment Configuration\n\n# Server runtime port\nPORT=3000\n\n# Node environment (production, development)\nNODE_ENV=development\n\n# GitHub Personal Access Token (for rate limit expansion)\nGITHUB_TOKEN=your_github_token_here\n\n# Google Gemini API Key for telemetry analysis\nGEMINI_API_KEY=your_gemini_key_here\n`,
       dockerfile: `# Multi-stage Build for ${repoName || 'App'}\nFROM node:20-alpine AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:20-alpine AS runner\nWORKDIR /app\nENV NODE_ENV=production\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY --from=builder /app/dist ./dist\nCOPY --from=builder /app/server.ts ./server.ts\n\nEXPOSE 3000\nUSER node\nCMD ["node", "dist/server.cjs"]\n`,
-      bootstrapScript: `#!/bin/bash\n# Onboarding Bootstrap Script for ${repoName || 'App'}\n\nRED='\\033[0;31m'\nGREEN='\\033[0;32m'\nBLUE='\\033[0;34m'\nNC='\\033[0m'\n\necho -e "\${BLUE}==> Initiating Onboarding Automation for ${repoName || 'App'}... \${NC}"\n\n# Check prerequisites\nif ! command -v node &> /dev/null; then\n    echo -e "\${RED}[!] Node.js is missing. Please install v18+.\${NC}"\nelse\n    echo -e "\${GREEN}[✓] Node.js is active: $(node -v)\${NC}"\nfi\n\n# Copy .env configuration\nif [ ! -f .env ]; then\n    echo -e "\${BLUE}[i] Cloning .env.example configuration...\${NC}"\n    cp .env.example .env\nfi\n\necho -e "\${GREEN}[✓] Setup complete! Run 'npm run dev' to boot local service.\${NC}"\n`
+      bootstrapScript: `#!/bin/bash\n# Onboarding Bootstrap Script for ${repoName || 'App'}\n\nRED='\\033[0;31m'\nGREEN='\\033[0;32m'\nBLUE='\\033[0;34m'\nNC='\\033[0m'\n\necho -e "\${BLUE}==> Initiating Onboarding Automation for ${repoName || 'App'}... \${NC}"\n\n# Check prerequisites\nif ! command -v node &> /dev/null; then\n    echo -e "\${RED}[!] Node.js is missing. Please install v18+.\${NC}"\nelse\n    echo -e "\${GREEN}[✓] Node.js is active: $(node -v)\${NC}"\nfi\n\n# Copy .env configuration\nif [ ! -f .env ]; then\n    echo -e "\${BLUE}[i] Cloning .env configuration...\${NC}"\n    cp .env .env\nfi\n\necho -e "\${GREEN}[✓] Setup complete! Run 'npm run dev' to boot local service.\${NC}"\n`
     };
     return res.json(fallback);
   }
