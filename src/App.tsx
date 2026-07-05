@@ -417,7 +417,7 @@ To launch this dashboard locally:
 2. Initialize and configure secrets in your local environments:
    \`\`\`bash
    # Create environment file
-   cp .env.example .env
+   cp .env .env
    
    # Populate secrets
    GEMINI_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
@@ -1584,7 +1584,7 @@ To launch this dashboard locally:
                             ) : (
                               <XCircle className="h-4 w-4 text-rose-400" />
                             )}
-                            <span className="font-mono">.env.example file</span>
+                            <span className="font-mono">.env file</span>
                           </div>
                           <span className="text-[10px] text-slate-500 font-mono">
                             {result.onboardingAuditor?.hasEnvExample ? "PRESENT" : "MISSING"}
@@ -1674,7 +1674,7 @@ To launch this dashboard locally:
                                     : "text-slate-500 hover:text-slate-300"
                                 }`}
                               >
-                                .env.example
+                                .env
                               </button>
                               <button
                                 onClick={() => setActiveBlueprintTab("docker")}
@@ -1737,7 +1737,7 @@ To launch this dashboard locally:
                               <button
                                 onClick={() => {
                                   const config = {
-                                    env: { filename: ".env.example", content: blueprints.envExample },
+                                    env: { filename: ".env", content: blueprints.envExample },
                                     docker: { filename: "Dockerfile", content: blueprints.dockerfile },
                                     bootstrap: { filename: "bootstrap.sh", content: blueprints.bootstrapScript }
                                   }[activeBlueprintTab];
@@ -2082,7 +2082,7 @@ To launch this dashboard locally:
                             subtitle: "Automated Developer Setup Toolchain",
                             points: [
                               "Generates custom container files (Dockerfile) on-demand using Gemini 2.5 Flash.",
-                              "Provides pre-populated environment config keys (.env.example) and shell builders.",
+                              "Provides pre-populated environment config keys (.env) and shell builders.",
                               "Enables instant 'one-command onboarding' to decrease developer setup tax to near-zero."
                             ],
                             icon: <Terminal className="h-6 w-6 text-cyan-400" />
