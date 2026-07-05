@@ -1,0 +1,6 @@
+{
+  "name": "DevPulse",
+  "description": "An elegant AI-driven project health and developer sentiment analyzer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
