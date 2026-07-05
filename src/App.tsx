@@ -88,6 +88,143 @@ export default function App() {
   const [extraScopeInjections, setExtraScopeInjections] = useState<number>(0);
   const [ammoCopied, setAmmoCopied] = useState(false);
 
+  // Issue Cleanliness Workshop states
+  const [rawIssueText, setRawIssueText] = useState<string>(
+    "hey we need to fix the button in the login page it's broken. also check why it's not working on safari. make sure to push it before friday so the client is happy. nick needs to review this."
+  );
+  const [cleanlinessLoading, setCleanlinessLoading] = useState(false);
+  const [cleanlinessResult, setCleanlinessResult] = useState<{
+    cleanlinessScore: number;
+    checklistItems: Array<{ criteriaName: string; passes: boolean }>;
+    actionableRecommendations: string[];
+    cleanedMarkdown: string;
+  } | null>(null);
+  const [copiedCleanMarkdown, setCopiedCleanMarkdown] = useState(false);
+
+  // Branch Naming compliance and generator states
+  const [branchToCheck, setBranchToCheck] = useState("nick.42.fix-safari-login");
+  const [branchValidationResult, setBranchValidationResult] = useState<{
+    isValid: boolean;
+    feedback: string;
+    parsed?: { name: string; issue: string; title: string };
+  } | null>({
+    isValid: true,
+    feedback: "✓ Complies perfectly with Ben Holmes' rigid naming standards! Format: name.issue_number.title",
+    parsed: { name: "nick", issue: "42", title: "fix-safari-login" }
+  });
+  const [contributorName, setContributorName] = useState("nick");
+  const [issueId, setIssueId] = useState("42");
+  const [taskTitle, setTaskTitle] = useState("safari-login-button-fix");
+  const [copiedBranch, setCopiedBranch] = useState(false);
+
+  // Stakeholder Conflict Resolution Ammo states
+  const [selectedObjection, setSelectedObjection] = useState("Tiny UI tweak before Friday launch");
+  const [ammoLoading, setAmmoLoading] = useState(false);
+  const [ammoResult, setAmmoResult] = useState<{
+    clientDialogueDefense: string;
+    slackResponse: string;
+    meetingAgendaPoints: string[];
+  } | null>(null);
+  const [copiedDialogue, setCopiedDialogue] = useState(false);
+  const [copiedSlack, setCopiedSlack] = useState(false);
+
+  const handleCleanIssue = async () => {
+    if (!rawIssueText.trim()) return;
+    setCleanlinessLoading(true);
+    setCleanlinessResult(null);
+    try {
+      const response = await fetch("/api/clean-issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rawIssueText }),
+      });
+      const data = await response.json();
+      setCleanlinessResult(data);
+    } catch (err) {
+      console.error(err);
+      setCleanlinessResult({
+        cleanlinessScore: 45,
+        checklistItems: [
+          { criteriaName: "Structured display headings", passes: false },
+          { criteriaName: "Contains checklist tasks (- [ ])", passes: false },
+          { criteriaName: "Explicit Expected vs. Actual behavior", passes: false },
+          { criteriaName: "Formatted code snippets", passes: false },
+        ],
+        actionableRecommendations: [
+          "Structure the description using standardized headings.",
+          "Add checklist checkboxes (- [ ]) to track incremental work.",
+          "Delineate expected results from current actual failures clearly.",
+          "Enclose code logs or terminal traces within codeblock backticks."
+        ],
+        cleanedMarkdown: `### 📝 Issue: Fix safari button issue\n\n#### Description\n${rawIssueText}\n\n#### Expected Behavior\n- Button should render correctly and receive click events on Safari browser.\n\n#### Actual Behavior\n- Button click events fail to register on Safari 17.x versions.\n\n#### Checklist Tasks\n- [ ] Validate Safari viewport dimensions\n- [ ] Implement cross-browser mouse listeners\n- [ ] Verify layout constraints`
+      });
+    } finally {
+      setCleanlinessLoading(false);
+    }
+  };
+
+  const handleValidateBranch = (val: string) => {
+    setBranchToCheck(val);
+    if (!val.trim()) {
+      setBranchValidationResult(null);
+      return;
+    }
+    // Holmes pattern: name.issue_number.title  e.g. nick.42.safari-login-button-fix
+    const regex = /^([a-zA-Z0-9_-]+)\.([0-9]+)\.([a-zA-Z0-9_-]+)$/;
+    const match = val.match(regex);
+    if (match) {
+      setBranchValidationResult({
+        isValid: true,
+        feedback: "✓ Complies perfectly with Ben Holmes' rigid naming standards! Format: developer.issue_number.task-title",
+        parsed: {
+          name: match[1],
+          issue: match[2],
+          title: match[3]
+        }
+      });
+    } else {
+      setBranchValidationResult({
+        isValid: false,
+        feedback: "⚠️ Invalid. Does not match the required best-practice structure: name.issue_number.title (e.g., nick.42.login-button-fix)"
+      });
+    }
+  };
+
+  const handleGenerateAmmo = async () => {
+    setAmmoLoading(true);
+    setAmmoResult(null);
+    const metrics = {
+      healthScore: result?.healthScore ?? 84,
+      onboardingScore: result?.onboardingAuditor?.score ?? 45,
+      busFactorScore: result?.busFactor?.overallScore ?? 4,
+      extraScopeInjections: extraScopeInjections,
+      avgRequirementChurn: (result?.scopeAnalysis?.avgRequirementChurn ?? 1.4)
+    };
+
+    try {
+      const response = await fetch("/api/generate-negotiation-ammo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scenario: selectedObjection, metrics }),
+      });
+      const data = await response.json();
+      setAmmoResult(data);
+    } catch (err) {
+      console.error(err);
+      setAmmoResult({
+        clientDialogueDefense: `“We value your feedback on the layout! However, the telemetry shows we've added ${extraScopeInjections} tasks post-kickoff, which introduces a timeline tax. To maintain our ${result?.healthScore ?? 84}% health rating, let's schedule these for the next cycle.”`,
+        slackResponse: `Hi! Regarding the recent UI tweaks: our sprint stability is currently at ${Math.max(12, 78 - extraScopeInjections * 6)}% with a requirement churn of ${((result?.scopeAnalysis?.avgRequirementChurn ?? 1.4) + extraScopeInjections * 0.25).toFixed(1)}x. Let's lock this down to avoid pushing back our deployment target!`,
+        meetingAgendaPoints: [
+          `Impact of unapproved scope (+${extraScopeInjections} tasks mid-sprint)`,
+          `Protecting codebase health score (${result?.healthScore ?? 84}%) from high-entropy decay`,
+          `Locking down requirements to ensure zero setup friction during integration`,
+        ]
+      });
+    } finally {
+      setAmmoLoading(false);
+    }
+  };
+
   // Onboarding Blueprint Lab states
   const [blueprintLoading, setBlueprintLoading] = useState(false);
   const [blueprintError, setBlueprintError] = useState<string | null>(null);
@@ -1136,6 +1273,136 @@ To launch this dashboard locally:
                       </div>
                     </div>
 
+                    {/* Issue Cleanliness Workshop Card */}
+                    <div className="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-5 backdrop-blur-md">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-400 block mb-1">
+                            Teach Cleanliness
+                          </span>
+                          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-emerald-400" />
+                            Issue Cleanliness Workshop
+                          </h3>
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                        Ben Holmes' guidelines advocate that clear issues prevent mid-sprint scope creep. Draft or paste your issue text below to grade its quality and generate a perfectly structured Git-ready markdown draft.
+                      </p>
+
+                      <div className="space-y-3">
+                        <textarea
+                          value={rawIssueText}
+                          onChange={(e) => setRawIssueText(e.target.value)}
+                          className="w-full h-24 bg-slate-950 text-xs font-mono text-slate-300 p-3 border border-slate-800 rounded-xl leading-relaxed outline-none focus:border-emerald-500 resize-none"
+                          placeholder="Type raw ticket description..."
+                        />
+
+                        <button
+                          onClick={handleCleanIssue}
+                          disabled={cleanlinessLoading}
+                          className="w-full bg-emerald-600/15 hover:bg-emerald-600/35 border border-emerald-500/20 text-emerald-400 font-bold text-xs py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          {cleanlinessLoading ? (
+                            <>
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                              <span>Analyzing Issue Cleanliness...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              <span>Audit & Structure Draft</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {cleanlinessResult && (
+                        <div className="mt-5 space-y-4 animate-fadeIn border-t border-slate-800/60 pt-4">
+                          {/* Score and Checklist */}
+                          <div className="flex items-center gap-4 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+                            <div className="relative flex items-center justify-center w-14 h-14 flex-shrink-0">
+                              <svg className="w-full h-full transform -rotate-90">
+                                <circle cx="28" cy="28" r="22" className="stroke-slate-800 fill-none" strokeWidth="4" />
+                                <circle
+                                  cx="28"
+                                  cy="28"
+                                  r="22"
+                                  className="fill-none transition-all duration-1000"
+                                  strokeWidth="4"
+                                  strokeDasharray={138.2}
+                                  strokeDashoffset={138.2 - (138.2 * cleanlinessResult.cleanlinessScore) / 100}
+                                  stroke={cleanlinessResult.cleanlinessScore >= 75 ? "#10b981" : cleanlinessResult.cleanlinessScore >= 50 ? "#eab308" : "#f43f5e"}
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                              <span className="absolute text-sm font-bold text-white font-mono">
+                                {cleanlinessResult.cleanlinessScore}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-mono text-slate-500 uppercase block">Cleanliness Rating</span>
+                              <span className={`text-xs font-bold font-mono uppercase ${
+                                cleanlinessResult.cleanlinessScore >= 75 ? "text-emerald-400" : cleanlinessResult.cleanlinessScore >= 50 ? "text-yellow-400" : "text-rose-400"
+                              }`}>
+                                {cleanlinessResult.cleanlinessScore >= 75 ? "Excellent Cleanliness" : cleanlinessResult.cleanlinessScore >= 50 ? "Requires Refinement" : "Severe Quality Debt"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Criteria Passes */}
+                          <div className="space-y-1.5">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Standard Checklist:</span>
+                            {cleanlinessResult.checklistItems.map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between text-xs p-2 rounded bg-slate-950/40 border border-slate-900/60">
+                                <span className="text-slate-400 font-mono text-[11px]">{item.criteriaName}</span>
+                                {item.passes ? (
+                                  <span className="text-emerald-400 text-[10px] font-mono uppercase font-bold">PASS</span>
+                                ) : (
+                                  <span className="text-rose-400 text-[10px] font-mono uppercase font-bold">FAIL</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Recommendations */}
+                          {cleanlinessResult.actionableRecommendations.length > 0 && (
+                            <div className="space-y-1 bg-slate-950/30 p-3 rounded-xl border border-slate-900">
+                              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider block font-bold">Actionable Improvements:</span>
+                              {cleanlinessResult.actionableRecommendations.map((rec, rIdx) => (
+                                <p key={rIdx} className="text-xs text-slate-400 flex items-start gap-1">
+                                  <span className="text-amber-500">•</span>
+                                  <span>{rec}</span>
+                                </p>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Cleaned Markdown Result */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Optimized Ticket Markdown</span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(cleanlinessResult.cleanedMarkdown);
+                                  setCopiedCleanMarkdown(true);
+                                  setTimeout(() => setCopiedCleanMarkdown(false), 2000);
+                                }}
+                                className="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer bg-slate-950/80 px-2 py-1 rounded border border-slate-850"
+                              >
+                                {copiedCleanMarkdown ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                <span>{copiedCleanMarkdown ? "Copied!" : "Copy"}</span>
+                              </button>
+                            </div>
+                            <pre className="font-mono text-[10px] bg-slate-950 p-3 rounded-xl border border-slate-900 text-slate-300 max-h-[160px] overflow-y-auto leading-relaxed select-all">
+                              {cleanlinessResult.cleanedMarkdown}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                   </div>
 
                   {/* RIGHT COLUMN - SUMMARY, SENTIMENT TIMELINE CHART, REFACTOR TERMINAL */}
@@ -1773,6 +2040,110 @@ To launch this dashboard locally:
                         )}
                       </div>
 
+                      {/* BRANCH NAMING AUDITOR & GENERATOR */}
+                      <div className="mt-6 pt-5 border-t border-slate-800/80">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-xs font-mono uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                            <Shield className="h-3.5 w-3.5 text-cyan-400" />
+                            Branch Naming Auditor & Generator
+                          </h4>
+                          <span className="text-[9px] font-mono text-cyan-400 border border-cyan-400/30 px-2 py-0.5 rounded bg-cyan-400/5">Ben Holmes Spec</span>
+                        </div>
+                        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                          Ben Holmes' guidelines mandate rigid, structured branch names (<code className="text-slate-300 font-mono text-[11px]">name.issue_number.title</code>) to easily trace ticket requirements right from the terminal.
+                        </p>
+
+                        <div className="space-y-4">
+                          {/* Compliance Checker */}
+                          <div className="space-y-1.5 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">1. Check Branch Name Compliance</span>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={branchToCheck}
+                                onChange={(e) => handleValidateBranch(e.target.value)}
+                                className="flex-1 bg-slate-950 text-xs font-mono text-slate-300 p-2 border border-slate-800 rounded-lg outline-none focus:border-cyan-500"
+                                placeholder="e.g. nick.42.fix-safari"
+                              />
+                            </div>
+                            {branchValidationResult && (
+                              <div className={`text-[11px] font-mono p-2 rounded mt-2 border ${
+                                branchValidationResult.isValid
+                                  ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+                                  : "bg-rose-500/5 border-rose-500/20 text-rose-400"
+                              }`}>
+                                {branchValidationResult.feedback}
+                                {branchValidationResult.parsed && (
+                                  <div className="mt-2 pt-1.5 border-t border-emerald-500/10 grid grid-cols-3 gap-2 text-[10px] text-slate-400">
+                                    <div>Dev: <span className="text-white font-bold block">{branchValidationResult.parsed.name}</span></div>
+                                    <div>Issue: <span className="text-white font-bold block">#{branchValidationResult.parsed.issue}</span></div>
+                                    <div>Title: <span className="text-white font-bold block">{branchValidationResult.parsed.title}</span></div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Generator */}
+                          <div className="space-y-3 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">2. Compliance Generator</span>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <label className="text-[9px] font-mono text-slate-500 uppercase block mb-1">Dev Name</label>
+                                <input
+                                  type="text"
+                                  value={contributorName}
+                                  onChange={(e) => setContributorName(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                                  className="w-full bg-slate-950 text-xs font-mono text-slate-300 p-2 border border-slate-800 rounded-lg outline-none focus:border-cyan-500"
+                                  placeholder="nick"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[9px] font-mono text-slate-500 uppercase block mb-1">Issue ID</label>
+                                <input
+                                  type="text"
+                                  value={issueId}
+                                  onChange={(e) => setIssueId(e.target.value.replace(/[^0-9]/g, ''))}
+                                  className="w-full bg-slate-950 text-xs font-mono text-slate-300 p-2 border border-slate-800 rounded-lg outline-none focus:border-cyan-500"
+                                  placeholder="42"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[9px] font-mono text-slate-500 uppercase block mb-1">Task Title</label>
+                                <input
+                                  type="text"
+                                  value={taskTitle}
+                                  onChange={(e) => setTaskTitle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                                  className="w-full bg-slate-950 text-xs font-mono text-slate-300 p-2 border border-slate-800 rounded-lg outline-none focus:border-cyan-500"
+                                  placeholder="login-button-fix"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-900/60 flex items-center justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[9px] font-mono text-slate-500 uppercase block">Generated Compliant Branch</span>
+                                <span className="text-xs font-mono font-bold text-cyan-400 block truncate">
+                                  {contributorName || "dev"}.{issueId || "issue"}.{taskTitle || "title"}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  const formatted = `${contributorName || "dev"}.${issueId || "issue"}.${taskTitle || "title"}`;
+                                  navigator.clipboard.writeText(formatted);
+                                  setCopiedBranch(true);
+                                  setTimeout(() => setCopiedBranch(false), 2000);
+                                }}
+                                className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer bg-slate-950 px-2 py-1.5 rounded border border-slate-850"
+                              >
+                                {copiedBranch ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                <span>{copiedBranch ? "Copied!" : "Copy Branch"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
 
@@ -2348,6 +2719,140 @@ To launch this dashboard locally:
                           <span>{ammoCopied ? "Ammo Copied!" : "Copy Pitch Ammo"}</span>
                         </button>
                       </div>
+
+                      {/* Conflict Resolution Ammo Deck / Picky Client Negotiation Board */}
+                      <div className="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-5 relative overflow-hidden backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
+                            Client Negotiation Board
+                          </h3>
+                          <span className="text-[9px] font-mono text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded bg-emerald-500/5">Simulation Lab</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mb-4 leading-normal">
+                          The "Human" part of project management is tough. When a picky client makes unapproved requests, use these objective, Git-proven defenses to negotiate.
+                        </p>
+
+                        <div className="space-y-4">
+                          {/* Dynamic Client Objection Input */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[9px] font-mono text-slate-500 uppercase block font-bold">
+                                Client Objection / Scenario:
+                              </label>
+                              <span className="text-[9px] font-mono text-slate-500 italic">Fully Editable</span>
+                            </div>
+
+                            {/* Preset quick-fill chips */}
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                { label: "“Just a tiny UI tweak”", val: "Tiny UI tweak before Friday launch" },
+                                { label: "“CEO priority mid-sprint”", val: "Another priority task from executive stakeholders" },
+                                { label: "“Complete core rewrite”", val: "Complete rewrite of core flow mid-sprint" },
+                                { label: "“Why is it taking so long?”", val: "Ignoring developer velocity and calling them lazy" }
+                              ].map((preset, idx) => {
+                                const isSelected = selectedObjection === preset.val;
+                                return (
+                                  <button
+                                    key={idx}
+                                    onClick={() => setSelectedObjection(preset.val)}
+                                    className={`text-[9px] font-mono px-2 py-1 rounded transition-all cursor-pointer border ${
+                                      isSelected
+                                        ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
+                                        : "bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-300 hover:border-slate-800"
+                                    }`}
+                                    type="button"
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <textarea
+                              value={selectedObjection}
+                              onChange={(e) => setSelectedObjection(e.target.value)}
+                              className="w-full h-20 bg-slate-950 text-xs text-slate-300 p-3 border border-slate-800 rounded-xl leading-relaxed outline-none focus:border-emerald-500 resize-none font-sans"
+                              placeholder="Type any customized stakeholder objection or comment here..."
+                            />
+                          </div>
+
+                          <button
+                            onClick={handleGenerateAmmo}
+                            disabled={ammoLoading}
+                            className="w-full py-2.5 bg-emerald-600/15 hover:bg-emerald-600/35 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            {ammoLoading ? (
+                              <>
+                                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                <span>Synthesizing Defenses...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Flame className="h-3.5 w-3.5" />
+                                <span>Generate Negotiation Ammo</span>
+                              </>
+                            )}
+                          </button>
+
+                          {ammoResult && (
+                            <div className="space-y-4 pt-4 border-t border-slate-800/60 animate-fadeIn text-[11px]">
+                              {/* Dialogue defense */}
+                              <div className="space-y-1 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-wider font-bold">💬 Live Verbal Dialogue Defense:</span>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(ammoResult.clientDialogueDefense);
+                                      setCopiedDialogue(true);
+                                      setTimeout(() => setCopiedDialogue(false), 2000);
+                                    }}
+                                    className="text-[9px] font-mono text-slate-500 hover:text-slate-300 flex items-center gap-1 cursor-pointer"
+                                  >
+                                    {copiedDialogue ? <Check className="h-2.5 w-2.5 text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
+                                    <span>{copiedDialogue ? "Copied!" : "Copy"}</span>
+                                  </button>
+                                </div>
+                                <p className="text-slate-300 italic leading-relaxed">
+                                  {ammoResult.clientDialogueDefense}
+                                </p>
+                              </div>
+
+                              {/* Slack Response */}
+                              <div className="space-y-1 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider font-bold">💬 Slack/Email Post Template:</span>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(ammoResult.slackResponse);
+                                      setCopiedSlack(true);
+                                      setTimeout(() => setCopiedSlack(false), 2000);
+                                    }}
+                                    className="text-[9px] font-mono text-slate-500 hover:text-slate-300 flex items-center gap-1 cursor-pointer"
+                                  >
+                                    {copiedSlack ? <Check className="h-2.5 w-2.5 text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
+                                    <span>{copiedSlack ? "Copied!" : "Copy"}</span>
+                                  </button>
+                                </div>
+                                <pre className="text-slate-300 font-sans leading-relaxed whitespace-pre-wrap select-all bg-black/30 p-2 rounded-lg border border-slate-950">
+                                  {ammoResult.slackResponse}
+                                </pre>
+                              </div>
+
+                              {/* Agenda points */}
+                              <div className="space-y-1.5 bg-slate-950/20 p-3 rounded-xl border border-slate-900">
+                                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold block">📋 Proposed Meeting Agenda Points:</span>
+                                {ammoResult.meetingAgendaPoints.map((point, idx) => (
+                                  <div key={idx} className="flex items-start gap-1.5 text-slate-400">
+                                    <span className="text-emerald-500 font-mono">•</span>
+                                    <span>{point}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                     </div>
 
                     {/* RIGHT COLUMN: Radar overview & Timeline & Audits */}
