@@ -95,7 +95,7 @@ DevPulse uses objective algorithmic models to drive its indicators:
 
 ## Setup Instructions
 
-1. **Clone:** `git clone https://github.com/JewellGomes/kitaCareAI.git`
+1. **Clone:** `git clone https://github.com/JewellGomes/devPulseApp.git`
 2. **Install:** `npm install`
 3. **Environment:** Create `.env` with `GITHUB_TOKEN` and `GEMINI_API_KEY`.
 4. **Launch:** `npm run dev`
