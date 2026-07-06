@@ -102,7 +102,7 @@ DevPulse uses objective algorithmic models to drive its indicators:
 
 ---
 **Created by Jewell Gomes**  
-## 👥 Team Details
+## Team Details
 **Project Type:** Solo Developer
 **Developer:** Jewell Eudocia Gomes
 **Role:** Full-Stack Developer, AI Engineer, & UI/UX Designer
