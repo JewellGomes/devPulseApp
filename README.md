@@ -9,6 +9,12 @@ This is the **Master README.md**, fully updated to include every technical sub-f
 
 ---
 
+## Demo & Links
+*   **Live Demo Video:** [https://youtu.be/4GYpBQMI2_4]
+*   **GitHub Repository:** [https://github.com/JewellGomes/devPulseApp](https://github.com/JewellGomes/devPulseApp)
+
+---
+
 ## Hackathon Information
 *   **Problem Statement:** Build an innovative solution that solves a real-world problem using technology.
 *   **The Problem:** Most development failures aren't caused by bad code, but by **process friction**: unreviewed PRs, developer burnout from context-switching, and "In Limbo" projects caused by silent scope creep.
